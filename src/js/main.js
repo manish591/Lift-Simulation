@@ -7,10 +7,10 @@ const moveLiftDownBtn = document.querySelector('.floor__call-lift-down');
 const liftsContainer = document.querySelector('.floor__lifts');
 let lift = document.querySelectorAll('.doors');
 
-const destinations = [];
-const currentlyServedFloors = [];
+let destinations = [];
+let currentlyServedFloors = [];
 let numOfLifts = 1;
-const liftsData = [...document.querySelectorAll('.doors')].map((element) => {
+let liftsData = [...document.querySelectorAll('.doors')].map((element) => {
   return {
     element,
     lastFloor: 1,
@@ -21,6 +21,7 @@ const liftsData = [...document.querySelectorAll('.doors')].map((element) => {
 /**
  * Web socket connection
  */
+
 const webSocket = new WebSocket(
   'wss://lift-simulation-backend-production.up.railway.app/',
 );
@@ -92,6 +93,7 @@ const createFloorWithIndex = (floorIndex) => {
     callLiftUpBtn.addEventListener('click', callLift);
     callLiftDownBtn.addEventListener('click', callLift);
     floorContainer.classList.add('floor');
+    floorContainer.classList.add('floor-generated');
     floorActionsContainer.classList.add('floor__actions');
     callLiftDownBtn.classList.add('floor__call-lift-down');
     callLiftUpBtn.classList.add('floor__call-lift-up');
@@ -123,6 +125,7 @@ const addNewLift = () => {
   }
   const liftEl = document.createElement('div');
   liftEl.classList.add('doors');
+  liftEl.classList.add('doors-generated');
   liftsContainer.appendChild(liftEl);
   lift = document.querySelectorAll('.doors');
   liftsData.push({
@@ -174,5 +177,18 @@ webSocket.onmessage = (message) => {
 
   if (response.action === 'movelift') {
     moveLift(response.floorIndex);
+  }
+
+  if (response.action === 'newuseradded') {
+    const allGeneratedFloors = document.querySelectorAll('.floor-generated');
+    const allGeneratedLifts = document.querySelectorAll('.doors-generated');
+
+    allGeneratedFloors.forEach((floor) => floor.remove());
+    allGeneratedLifts.forEach((lift) => lift.remove());
+
+    destinations = [];
+    currentlyServedFloors = [];
+    numOfLifts = 1;
+    liftsData = liftsData.slice(0, 1);
   }
 };
