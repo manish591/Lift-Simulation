@@ -120,9 +120,6 @@ const getMaxLiftsAllowed = () => {
 };
 
 const addNewLift = () => {
-  if (numOfLifts >= getMaxLiftsAllowed()) {
-    return;
-  }
   const liftEl = document.createElement('div');
   liftEl.classList.add('doors');
   liftEl.classList.add('doors-generated');
