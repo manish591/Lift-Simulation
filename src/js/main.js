@@ -22,7 +22,7 @@ const liftsData = [...document.querySelectorAll('.doors')].map((element) => {
  * Web socket connection
  */
 const webSocket = new WebSocket(
-  'ws://lift-simulation-backend-production.up.railway.app/',
+  'wss://lift-simulation-backend-production.up.railway.app/',
 );
 let clientId = null;
 
