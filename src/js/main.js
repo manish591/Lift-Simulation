@@ -18,10 +18,24 @@ const liftsData = [...document.querySelectorAll('.doors')].map((element) => {
   };
 });
 
+/**
+ * Web socket connection
+ */
+const webSocket = new WebSocket(
+  'ws://lift-simulation-backend-production.up.railway.app/',
+);
+let clientId = null;
+
 const callLift = (e) => {
   const parentElement = e.target.parentElement.parentElement;
   const floorIndex = parentElement.dataset.floor;
   moveLift(floorIndex);
+  const payload = {
+    action: 'movelift',
+    floorIndex: floorIndex,
+    clientId,
+  };
+  webSocket.send(JSON.stringify(payload));
 };
 
 const findFirstNonBusyLift = () => {
@@ -121,5 +135,44 @@ const addNewLift = () => {
 
 moveLiftUpBtn.addEventListener('click', callLift);
 moveLiftDownBtn.addEventListener('click', callLift);
-addFloorbtn.addEventListener('click', addNewFloor);
-addLiftBtn.addEventListener('click', addNewLift);
+addFloorbtn.addEventListener('click', () => {
+  const payload = {
+    action: 'addnewfloor',
+    clientId,
+  };
+  webSocket.send(JSON.stringify(payload));
+  addNewFloor();
+});
+addLiftBtn.addEventListener('click', () => {
+  const payload = {
+    action: 'addnewlift',
+    clientId,
+  };
+  webSocket.send(JSON.stringify(payload));
+  addNewLift();
+});
+
+/**
+ * Websocket event listeners
+ */
+
+webSocket.onmessage = (message) => {
+  const response = JSON.parse(message.data);
+
+  if (response.action === 'connect') {
+    clientId = response.clientId;
+    console.log(`Server sends this message ${response.clientId}`);
+  }
+
+  if (response.action === 'addnewlift') {
+    addNewLift();
+  }
+
+  if (response.action === 'addnewfloor') {
+    addNewFloor();
+  }
+
+  if (response.action === 'movelift') {
+    moveLift(response.floorIndex);
+  }
+};
